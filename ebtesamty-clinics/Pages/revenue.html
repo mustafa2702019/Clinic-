@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإيرادات - ابتسامتي</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .revenue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .date-filter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .date-filter select, .date-filter input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .summary-card.income {
+            border-bottom: 4px solid #27ae60;
+        }
+
+        .summary-card.expenses {
+            border-bottom: 4px solid #e74c3c;
+        }
+
+        .summary-card.profit {
+            border-bottom: 4px solid #3498db;
+        }
+
+        .summary-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .summary-card .amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .branch-performance {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .performance-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: right;
+            color: #2c3e50;
+        }
+
+        .performance-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .performance-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            border-radius: 4px;
+        }
+
+        .transactions-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .transaction-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .transaction-amount {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .amount-income {
+            color: #27ae60;
+        }
+
+        .amount-expense {
+            color: #e74c3c;
+        }
+
+        .btn-export {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .btn-export:hover {
+            background: #219a52;
+        }
+
+        .treatment-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .treatment-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .treatment-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .treatment-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+         <div class="logo">
+        <img src="https://krdental.com/wp-content/uploads/2021/03/Cosmetic-Dental.jpg.webp" 
+             alt="ابتسامتي" 
+             class="logo-img">
+        <h2>ابتسامتي</h2>
+        <p>د. ابرام عبد لمعى كامل</p>
+        <div class="branch-tags">
+            <span class="branch-tag">سمالوط</span>
+            <span class="branch-tag">التوفيقية</span>
+            <span class="branch-tag">قلوصنا</span>
+        </div>
+            
+            <nav class="nav-menu">
+                <a href="../index.html">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="patients.html">
+                    <i class="fas fa-users"></i>
+                    <span>المرضى</span>
+                </a>
+                <a href="appointments.html">
+                    <i class="fas fa-calendar"></i>
+                    <span>المواعيد</span>
+                </a>
+                <a href="revenue.html" class="active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>الإيرادات</span>
+                </a>
+                <a href="inventory.html">
+                    <i class="fas fa-box"></i>
+                    <span>المخزون</span>
+                </a>
+            </nav>
+
+               <div class="user-info">
+                <img src="../assets/dr-ebram.jpg" alt="د. ابرام عبد لمعى" class="profile-img">
+                <div>
+                    <p>د.ابرام عبد لمعى</p>
+                    <small>مدير النظام</small>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="revenue-header">
+                <h1>الإيرادات والمصروفات</h1>
+                <div class="date-filter">
+                    <select id="periodSelect" onchange="changePeriod()">
+                        <option value="day">اليوم</option>
+                        <option value="week" selected>هذا الأسبوع</option>
+                        <option value="month">هذا الشهر</option>
+                        <option value="year">هذا العام</option>
+                        <option value="custom">مخصص</option>
+                    </select>
+                    <input type="date" id="startDate" style="display: none;" onchange="updateCustomRange()">
+                    <input type="date" id="endDate" style="display: none;" onchange="updateCustomRange()">
+                    <button class="btn-export" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i>
+                        تصدير Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card income">
+                    <h3>إجمالي الإيرادات</h3>
+                    <div class="amount" id="totalIncome">0 ج.م</div>
+                    <div class="subtitle" id="incomePeriod">هذا الأسبوع</div>
+                </div>
+                <div class="summary-card expenses">
+                    <h3>إجمالي المصروفات</h3>
+                    <div class="amount" id="totalExpenses">0 ج.م</div>
+                    <div class="subtitle" id="expensesPeriod">هذا الأسبوع</div>
+                </div>
+                <div class="summary-card profit">
+                    <h3>صافي الربح</h3>
+                    <div class="amount" id="netProfit">0 ج.م</div>
+                    <div class="subtitle" id="profitPeriod">هذا الأسبوع</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>الإيرادات اليومية</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>توزيع الإيرادات حسب الفرع</h3>
+                    <canvas id="branchChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Branch Performance -->
+            <div class="branch-performance">
+                <h3>أداء الفروع</h3>
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>الفرع</th>
+                            <th>الإيرادات</th>
+                            <th>المصروفات</th>
+                            <th>صافي الربح</th>
+                            <th>نسبة الأداء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="branchPerformanceBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Treatments Revenue -->
+            <div class="branch-performance">
+                <h3>الإيرادات حسب نوع العلاج</h3>
+                <div class="treatment-breakdown" id="treatmentBreakdown">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="transactions-list">
+                <h3>آخر المعاملات</h3>
+                <div id="recentTransactions">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        let currentPeriod = 'week';
+        let startDate = null;
+        let endDate = null;
+        let revenueChart = null;
+        let branchChart = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateInputs();
+            loadRevenueData();
+        });
+
+        function updateDateInputs() {
+            const today = new Date();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            
+            const endOfWeek = new Date(today);
+            endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+
+            document.getElementById('startDate').value = startOfWeek.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endOfWeek.toISOString().split('T')[0];
+        }
+
+        function changePeriod() {
+            const period = document.getElementById('periodSelect').value;
+            currentPeriod = period;
+
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+
+            if (period === 'custom') {
+                startDateInput.style.display = 'inline-block';
+                endDateInput.style.display = 'inline-block';
+            } else {
+                startDateInput.style.display = 'none';
+                endDateInput.style.display = 'none';
+            }
+
+            loadRevenueData();
+        }
+
+        function updateCustomRange() {
+            if (currentPeriod === 'custom') {
+                loadRevenueData();
+            }
+        }
+
+        function loadRevenueData() {
+            const { start, end } = getDateRange();
+            
+            // Filter transactions by date range
+            const filteredTransactions = EbtesamtySystem.transactions.filter(t => 
+                t.date >= start && t.date <= end
+            );
+
+            // Calculate totals
+            const income = filteredTransactions
+                .filter(t => t.type === 'كشف' || t.type === 'علاج')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const expenses = filteredTransactions
+                .filter(t => t.type === 'مصروف')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const profit = income - expenses;
+
+            // Update summary cards
+            document.getElementById('totalIncome').textContent = formatCurrency(income);
+            document.getElementById('totalExpenses').textContent = formatCurrency(expenses);
+            document.getElementById('netProfit').textContent = formatCurrency(profit);
+
+            // Update period text
+            const periodText = getPeriodText();
+            document.getElementById('incomePeriod').textContent = periodText;
+            document.getElementById('expensesPeriod').textContent = periodText;
+            document.getElementById('profitPeriod').textContent = periodText;
+
+            // Load charts
+            loadRevenueChart(filteredTransactions);
+            loadBranchChart(filteredTransactions);
+            loadBranchPerformance(filteredTransactions);
+            loadTreatmentBreakdown(filteredTransactions);
+            loadRecentTransactions(filteredTransactions);
+        }
+
+        function getDateRange() {
+            const today = new Date();
+            let start, end;
+
+            switch(currentPeriod) {
+                case 'day':
+                    start = today.toISOString().split('T')[0];
+                    end = start;
+                    break;
+                case 'week':
+                    start = document.getElementById('startDate').value;
+                    end = document.getElementById('endDate').value;
+                    break;
+                case 'month':
+                    start = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+                    end = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+                    break;
+                case 'year':
+                    start = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
+                    end = new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0];
+                    break;
+                case 'custom':
+                    start = document.getElementById('startDate').value;
+                    end = document.getElementById('endDate').value;
+                    break;
+            }
+
+            return { start, end };
+        }
+
+        function getPeriodText() {
+            const { start, end } = getDateRange();
+            
+            if (start === end) {
+                return formatDateArabic(start);
+            }
+            
+            return `من ${formatDateArabic(start)} إلى ${formatDateArabic(end)}`;
+        }
+
+        function loadRevenueChart(transactions) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // Group by date
+            const dailyRevenue = {};
+            transactions.forEach(t => {
+                if (t.type !== 'مصروف') {
+                    dailyRevenue[t.date] = (dailyRevenue[t.date] || 0) + t.amount;
+                }
+            });
+
+            const dates = Object.keys(dailyRevenue).sort();
+            const amounts = dates.map(d => dailyRevenue[d]);
+
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(d => formatDateArabic(d)),
+                    datasets: [{
+                        label: 'الإيرادات',
+                        data: amounts,
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' ج.م';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadBranchChart(transactions) {
+            const ctx = document.getElementById('branchChart').getContext('2d');
+            
+            // Group by branch
+            const branchRevenue = {};
+            EbtesamtySystem.branches.forEach(b => {
+                branchRevenue[b.name] = transactions
+                    .filter(t => t.branch === b.name && t.type !== 'مصروف')
+                    .reduce((sum, t) => sum + t.amount, 0);
+            });
+
+            if (branchChart) {
+                branchChart.destroy();
+            }
+
+            branchChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(branchRevenue),
+                    datasets: [{
+                        data: Object.values(branchRevenue),
+                        backgroundColor: ['#3498db', '#27ae60', '#e74c3c'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadBranchPerformance(transactions) {
+            const tbody = document.getElementById('branchPerformanceBody');
+            const maxRevenue = Math.max(...EbtesamtySystem.branches.map(b => 
+                transactions.filter(t => t.branch === b.name && t.type !== 'مصروف')
+                .reduce((sum, t) => sum + t.amount, 0)
+            ));
+
+            tbody.innerHTML = EbtesamtySystem.branches.map(b => {
+                const income = transactions.filter(t => t.branch === b.name && t.type !== 'مصروف')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                const expenses = transactions.filter(t => t.branch === b.name && t.type === 'مصروف')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                const profit = income - expenses;
+                const performance = maxRevenue > 0 ? (income / maxRevenue) * 100 : 0;
+
+                return `
+                    <tr>
+                        <td>${b.name}</td>
+                        <td>${formatCurrency(income)}</td>
+                        <td>${formatCurrency(expenses)}</td>
+                        <td>${formatCurrency(profit)}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${performance}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function loadTreatmentBreakdown(transactions) {
+            const container = document.getElementById('treatmentBreakdown');
+            
+            // Group treatments
+            const treatments = {};
+            transactions.filter(t => t.treatment).forEach(t => {
+                treatments[t.treatment] = treatments[t.treatment] || { count: 0, revenue: 0 };
+                treatments[t.treatment].count++;
+                treatments[t.treatment].revenue += t.amount;
+            });
+
+            container.innerHTML = Object.entries(treatments).map(([name, data]) => `
+                <div class="treatment-item">
+                    <div class="treatment-name">${name}</div>
+                    <div class="treatment-stats">
+                        <span>${data.count} عملية</span>
+                        <span>${formatCurrency(data.revenue)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadRecentTransactions(transactions) {
+            const container = document.getElementById('recentTransactions');
+            
+            const recent = transactions
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .slice(0, 10);
+
+            container.innerHTML = recent.map(t => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <h4>${t.patientName}</h4>
+                        <p>${t.branch} - ${formatDateArabic(t.date)} - ${t.type}</p>
+                    </div>
+                    <div class="transaction-amount ${t.type === 'مصروف' ? 'amount-expense' : 'amount-income'}">
+                        ${t.type === 'مصروف' ? '-' : '+'} ${formatCurrency(t.amount)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatCurrency(amount) {
+            return amount.toLocaleString('ar-EG') + ' ج.م';
+        }
+
+        function formatDateArabic(dateStr) {
+            return new Date(dateStr).toLocaleDateString('ar-EG');
+        }
+
+        function exportToExcel() {
+            // Get filtered data
+            const { start, end } = getDateRange();
+            const filteredTransactions = EbtesamtySystem.transactions.filter(t => 
+                t.date >= start && t.date <= end
+            );
+
+            // Prepare CSV content
+            let csv = 'التاريخ,المريض,الفرع,النوع,المبلغ,طريقة الدفع\n';
+            
+            filteredTransactions.forEach(t => {
+                csv += `${t.date},${t.patientName},${t.branch},${t.type},${t.amount},${t.paymentMethod || 'نقدي'}\n`;
+            });
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `revenue_${start}_to_${end}.csv`;
+            link.click();
+            
+            showNotification('تم تصدير التقرير بنجاح', 'success');
+        }
+    </script>
+</body>
+</html>
+

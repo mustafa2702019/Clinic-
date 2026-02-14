@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المواعيد - ابتسامتي</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .appointments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .branch-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .branch-tab {
+            padding: 10px 25px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .branch-tab.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .calendar-view {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-nav button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        .week-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day {
+            border: 1px solid #eee;
+            min-height: 100px;
+            padding: 5px;
+            border-radius: 5px;
+            background: white;
+        }
+        
+        .calendar-day.today {
+            background: #e8f4f8;
+            border-color: #3498db;
+        }
+        
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .appointment-item {
+            background: #3498db;
+            color: white;
+            padding: 3px 5px;
+            border-radius: 3px;
+            margin-bottom: 2px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-save {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-add {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .appointments-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .appointment-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .appointment-card:last-child {
+            border-bottom: none;
+        }
+        
+        .appointment-time {
+            background: #3498db;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .appointment-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .appointment-info p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+        <div class="logo">
+        <img src="https://krdental.com/wp-content/uploads/2021/03/Cosmetic-Dental.jpg.webp" 
+             alt="ابتسامتي" 
+             class="logo-img">
+        <h2>ابتسامتي</h2>
+        <p>د. ابرام عبد لمعى كامل</p>
+        <div class="branch-tags">
+            <span class="branch-tag">سمالوط</span>
+            <span class="branch-tag">التوفيقية</span>
+            <span class="branch-tag">قلوصنا</span>
+        </div>
+            
+            <nav class="nav-menu">
+                <a href="../index.html">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="patients.html">
+                    <i class="fas fa-users"></i>
+                    <span>المرضى</span>
+                </a>
+                <a href="appointments.html" class="active">
+                    <i class="fas fa-calendar"></i>
+                    <span>المواعيد</span>
+                </a>
+                <a href="revenue.html">
+                    <i class="fas fa-chart-line"></i>
+                    <span>الإيرادات</span>
+                </a>
+                <a href="inventory.html">
+                    <i class="fas fa-box"></i>
+                    <span>المخزون</span>
+                </a>
+            </nav>
+
+   <div class="user-info">
+                <img src="../assets/dr-ebram.jpg" alt="د. ابرام عبد لمعى" class="profile-img">
+                <div>
+                    <p>د.ابرام عبد لمعى</p>
+                    <small>مدير النظام</small>
+                </div>
+            </div>
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="appointments-header">
+                <h1>إدارة المواعيد</h1>
+                <button class="btn-add" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i>
+                    إضافة موعد جديد
+                </button>
+            </div>
+
+            <!-- Branch Tabs -->
+            <div class="branch-tabs">
+                <button class="branch-tab active" onclick="filterBranch('all')">جميع الفروع</button>
+                <button class="branch-tab" onclick="filterBranch('سمالوط')">سمالوط</button>
+                <button class="branch-tab" onclick="filterBranch('التوفيقية')">التوفيقية</button>
+                <button class="branch-tab" onclick="filterBranch('قلوصنا')">قلوصنا</button>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="calendar-view">
+                <div class="calendar-header">
+                    <h3 id="currentMonthYear"></h3>
+                    <div class="calendar-nav">
+                        <button onclick="changeMonth(-1)">←</button>
+                        <button onclick="changeMonth(1)">→</button>
+                        <button onclick="goToToday()">اليوم</button>
+                    </div>
+                </div>
+
+                <div class="week-days">
+                    <div>الأحد</div>
+                    <div>الإثنين</div>
+                    <div>الثلاثاء</div>
+                    <div>الأربعاء</div>
+                    <div>الخميس</div>
+                    <div>الجمعة</div>
+                    <div>السبت</div>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+
+            <!-- Today's Appointments -->
+            <div class="appointments-list">
+                <h3>مواعيد اليوم</h3>
+                <div id="todayAppointments"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إضافة موعد جديد</h2>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="appointmentForm" onsubmit="saveAppointment(event)">
+                <div class="form-group">
+                    <label>المريض</label>
+                    <select id="patientSelect" required>
+                        <option value="">اختر المريض</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الفرع</label>
+                        <select id="branchSelect" required>
+                            <option value="">اختر الفرع</option>
+                            <option value="سمالوط">سمالوط</option>
+                            <option value="التوفيقية">التوفيقية</option>
+                            <option value="قلوصنا">قلوصنا</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الطبيب</label>
+                        <select id="doctorSelect" required>
+                            <option value="">اختر الطبيب</option>
+                            <option value="د. إبراهيم">د. إبراهيم</option>
+                            <option value="د. أحمد">د. أحمد</option>
+                            <option value="د. محمد">د. محمد</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>التاريخ</label>
+                        <input type="date" id="appointmentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الوقت</label>
+                        <input type="time" id="appointmentTime" required>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn-save">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/data.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        let currentDate = new Date();
+        let currentBranch = 'all';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPatients();
+            generateCalendar();
+            loadTodayAppointments();
+        });
+
+        function loadPatients() {
+            const select = document.getElementById('patientSelect');
+            select.innerHTML = '<option value="">اختر المريض</option>';
+            
+            if (EbtesamtySystem.patients) {
+                EbtesamtySystem.patients.forEach(patient => {
+                    const option = document.createElement('option');
+                    option.value = patient.id;
+                    option.textContent = `${patient.name} - ${patient.phone}`;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        function generateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('currentMonthYear').textContent = 
+                currentDate.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date().toISOString().split('T')[0];
+            
+            let calendarHTML = '';
+            
+            for (let i = 0; i < firstDay; i++) {
+                calendarHTML += '<div class="calendar-day other-month"></div>';
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateStr === today;
+                
+                const dayAppointments = EbtesamtySystem.appointments ? 
+                    EbtesamtySystem.appointments.filter(apt => 
+                        apt.date === dateStr && (currentBranch === 'all' || apt.branch === currentBranch)
+                    ) : [];
+                
+                calendarHTML += `
+                    <div class="calendar-day ${isToday ? 'today' : ''}">
+                        <div class="day-number">${day}</div>
+                        ${dayAppointments.map(apt => `
+                            <div class="appointment-item" onclick="viewAppointment(${apt.id})">
+                                ${apt.time} - ${apt.patientName}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            document.getElementById('calendarGrid').innerHTML = calendarHTML;
+        }
+
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            generateCalendar();
+        }
+
+        function goToToday() {
+            currentDate = new Date();
+            generateCalendar();
+        }
+
+        function filterBranch(branch) {
+            currentBranch = branch;
+            
+            document.querySelectorAll('.branch-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            generateCalendar();
+            loadTodayAppointments();
+        }
+
+        function loadTodayAppointments() {
+            const today = new Date().toISOString().split('T')[0];
+            const container = document.getElementById('todayAppointments');
+            
+            const todayAppointments = EbtesamtySystem.appointments ? 
+                EbtesamtySystem.appointments.filter(apt => 
+                    apt.date === today && (currentBranch === 'all' || apt.branch === currentBranch)
+                ) : [];
+            
+            if (todayAppointments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">لا توجد مواعيد اليوم</p>';
+                return;
+            }
+            
+            container.innerHTML = todayAppointments.map(apt => `
+                <div class="appointment-card">
+                    <div class="appointment-time">${apt.time}</div>
+                    <div class="appointment-info">
+                        <h4>${apt.patientName}</h4>
+                        <p>${apt.branch} - ${apt.doctor}</p>
+                    </div>
+                    <span class="status-badge status-${apt.status}">
+                        ${apt.status === 'pending' ? 'معلق' : 'مؤكد'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('appointmentModal').classList.add('active');
+            document.getElementById('appointmentDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function closeModal() {
+            document.getElementById('appointmentModal').classList.remove('active');
+            document.getElementById('appointmentForm').reset();
+        }
+
+        function saveAppointment(event) {
+            event.preventDefault();
+            
+            const patientId = parseInt(document.getElementById('patientSelect').value);
+            const patient = EbtesamtySystem.patients.find(p => p.id === patientId);
+            
+            const appointmentData = {
+                id: EbtesamtySystem.appointments ? EbtesamtySystem.appointments.length + 1 : 1,
+                patientId: patientId,
+                patientName: patient.name,
+                branch: document.getElementById('branchSelect').value,
+                doctor: document.getElementById('doctorSelect').value,
+                date: document.getElementById('appointmentDate').value,
+                time: document.getElementById('appointmentTime').value,
+                status: 'pending'
+            };
+
+            if (!EbtesamtySystem.appointments) {
+                EbtesamtySystem.appointments = [];
+            }
+            
+            EbtesamtySystem.appointments.push(appointmentData);
+            EbtesamtySystem.saveToLocalStorage();
+            
+            closeModal();
+            generateCalendar();
+            loadTodayAppointments();
+            
+            alert('تم إضافة الموعد بنجاح');
+        }
+
+        function viewAppointment(id) {
+            const appointment = EbtesamtySystem.appointments.find(apt => apt.id === id);
+            if (appointment) {
+                alert(`المريض: ${appointment.patientName}\nالفرع: ${appointment.branch}\nالتاريخ: ${appointment.date}\nالوقت: ${appointment.time}`);
+            }
+        }
+    </script>
+</body>
+</html>
