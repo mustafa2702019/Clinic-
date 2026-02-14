@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المرضى - ابتسامتي</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Additional styles for patients page */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .search-box {
+            flex: 2;
+            min-width: 250px;
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 5px 15px;
+        }
+        
+        .search-box i {
+            color: #666;
+            margin-left: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 0;
+            font-size: 16px;
+            outline: none;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .filter-select {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .btn-add {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-add:hover {
+            background: #219a52;
+        }
+        
+        .patients-table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .patients-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .patients-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: right;
+            color: #2c3e50;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .patients-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .patients-table tbody tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        .btn-view {
+            background: #3498db;
+        }
+        
+        .btn-edit {
+            background: #f39c12;
+        }
+        
+        .btn-payment {
+            background: #27ae60;
+        }
+        
+        .btn-delete {
+            background: #e74c3c;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .modal-header h2 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .close-modal {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: #e74c3c;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .payment-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px dashed #27ae60;
+        }
+        
+        .payment-section h4 {
+            color: #27ae60;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .btn-save {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-save:hover {
+            background: #219a52;
+        }
+        
+        .btn-cancel {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-cancel:hover {
+            background: #c0392b;
+        }
+        
+        .payment-history {
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .payment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .payment-amount {
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        .payment-date {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .text-danger {
+            color: #e74c3c;
+        }
+        
+        .text-success {
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+        <div class="logo">
+        <img src="https://krdental.com/wp-content/uploads/2021/03/Cosmetic-Dental.jpg.webp" 
+             alt="ابتسامتي" 
+             class="logo-img">
+        <h2>ابتسامتي</h2>
+        <p>د. ابرام عبد لمعى كامل</p>
+        <div class="branch-tags">
+            <span class="branch-tag">سمالوط</span>
+            <span class="branch-tag">التوفيقية</span>
+            <span class="branch-tag">قلوصنا</span>
+        </div>
+            <nav class="nav-menu">
+                <a href="../index.html">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="patients.html" class="active">
+                    <i class="fas fa-users"></i>
+                    <span>المرضى</span>
+                </a>
+                <a href="appointments.html">
+                    <i class="fas fa-calendar"></i>
+                    <span>المواعيد</span>
+                </a>
+                <a href="revenue.html">
+                    <i class="fas fa-chart-line"></i>
+                    <span>الإيرادات</span>
+                </a>
+                <a href="inventory.html">
+                    <i class="fas fa-box"></i>
+                    <span>المخزون</span>
+                </a>
+            </nav>
+
+           <div class="user-info">
+                <img src="../assets/dr-ebram.jpg" alt="د. ابرام عبد لمعى" class="profile-img">
+                <div>
+                    <p>د.ابرام عبد لمعى</p>
+                    <small>مدير النظام</small>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>إدارة المرضى</h1>
+                <button class="btn-add" onclick="openAddPatientModal()">
+                    <i class="fas fa-plus"></i>
+                    إضافة مريض جديد
+                </button>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <h3>بحث عن مريض</h3>
+                <div class="search-filters">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="ابحث بالاسم أو رقم الهاتف..." onkeyup="searchPatients()">
+                    </div>
+                    <select class="filter-select" id="branchFilter" onchange="filterPatients()">
+                        <option value="all">جميع الفروع</option>
+                        <option value="سمالوط">سمالوط</option>
+                        <option value="التوفيقية">التوفيقية</option>
+                        <option value="قلوصنا">قلوصنا</option>
+                    </select>
+                    <select class="filter-select" id="statusFilter" onchange="filterPatients()">
+                        <option value="all">جميع الحالات</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Patients Table -->
+            <div class="patients-table-container">
+                <table class="patients-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم المريض</th>
+                            <th>رقم الهاتف</th>
+                            <th>الفرع</th>
+                            <th>تاريخ الميلاد</th>
+                            <th>آخر زيارة</th>
+                            <th>إجمالي المدفوعات</th>
+                            <th>المتبقي</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody">
+                        <!-- Data will be loaded here via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Patient Modal -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">إضافة مريض جديد</h2>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="patientForm" onsubmit="savePatient(event)">
+                <input type="hidden" id="patientId">
+                
+                <div class="form-group">
+                    <label>اسم المريض <span style="color: #e74c3c;">*</span></label>
+                    <input type="text" id="patientName" required placeholder="أدخل اسم المريض كاملاً">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>رقم الهاتف <span style="color: #e74c3c;">*</span></label>
+                        <input type="tel" id="patientPhone" required placeholder="01XXXXXXXXX" pattern="01[0-9]{9}">
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ الميلاد</label>
+                        <input type="date" id="patientBirthDate">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الفرع <span style="color: #e74c3c;">*</span></label>
+                        <select id="patientBranch" required>
+                            <option value="">اختر الفرع</option>
+                            <option value="سمالوط">سمالوط</option>
+                            <option value="التوفيقية">التوفيقية</option>
+                            <option value="قلوصنا">قلوصنا</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الطبيب المعالج</label>
+                        <select id="patientDoctor">
+                            <option value="د. إبراهيم">د. إبراهيم</option>
+                            <option value="د. أحمد">د. أحمد</option>
+                            <option value="د. محمد">د. محمد</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع العلاج</label>
+                    <textarea id="patientTreatment" placeholder="وصف العلاج المطلوب..."></textarea>
+                </div>
+
+                <!-- Payment Section -->
+                <div class="payment-section">
+                    <h4>
+                        <i class="fas fa-money-bill-wave"></i>
+                        معلومات الدفع
+                    </h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تكلفة العلاج</label>
+                            <input type="number" id="treatmentCost" placeholder="المبلغ الإجمالي" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>المدفوع</label>
+                            <input type="number" id="amountPaid" placeholder="المبلغ المدفوع" min="0" step="0.01" value="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>المتبقي</label>
+                            <input type="number" id="pendingAmount" placeholder="المبلغ المتبقي" min="0" step="0.01" readonly style="background: #f5f5f5;">
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الدفع</label>
+                            <input type="date" id="paymentDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        حفظ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Patient Modal -->
+    <div id="viewPatientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>بيانات المريض</h2>
+                <span class="close-modal" onclick="closeViewModal()">&times;</span>
+            </div>
+            <div id="patientDetails">
+                <!-- Patient details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeViewModal()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>تسجيل دفعة جديدة</h2>
+                <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            </div>
+            <form id="paymentForm" onsubmit="savePayment(event)">
+                <input type="hidden" id="paymentPatientId">
+                
+                <div class="form-group">
+                    <label>المبلغ</label>
+                    <input type="number" id="paymentAmount" required min="1" step="0.01" placeholder="أدخل المبلغ">
+                </div>
+                
+                <div class="form-group">
+                    <label>تاريخ الدفع</label>
+                    <input type="date" id="paymentDateModal" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>طريقة الدفع</label>
+                    <select id="paymentMethod">
+                        <option value="نقدي">نقدي</option>
+                        <option value="فيزا">فيزا</option>
+                        <option value="تحويل بنكي">تحويل بنكي</option>
+                    </select>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closePaymentModal()">إلغاء</button>
+                    <button type="submit" class="btn-save">تسجيل الدفعة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/data.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        let currentPatientId = null;
+        let currentEditId = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPatients();
+            initializePaymentCalculation();
+            
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentDate').value = today;
+            document.getElementById('paymentDateModal').value = today;
+        });
+
+        // Load patients into table
+        function loadPatients() {
+            const tbody = document.getElementById('patientsTableBody');
+            tbody.innerHTML = '';
+
+            if (!EbtesamtySystem.patients || EbtesamtySystem.patients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 30px;">لا يوجد مرضى</td></tr>';
+                return;
+            }
+
+            EbtesamtySystem.patients.forEach((patient, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${patient.name || ''}</td>
+                    <td>${patient.phone || ''}</td>
+                    <td>${patient.branch || ''}</td>
+                    <td>${patient.birthDate || '-'}</td>
+                    <td>${patient.lastVisit || '-'}</td>
+                    <td>${formatCurrency(patient.totalPayments || 0)}</td>
+                    <td class="${(patient.pendingPayment || 0) > 0 ? 'text-danger' : 'text-success'}">
+                        ${formatCurrency(patient.pendingPayment || 0)}
+                    </td>
+                    <td>
+                        <span class="status-badge ${patient.status === 'inactive' ? 'status-inactive' : 'status-active'}">
+                            ${patient.status === 'inactive' ? 'غير نشط' : 'نشط'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn btn-view" onclick="viewPatient(${patient.id})" title="عرض">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn btn-edit" onclick="editPatient(${patient.id})" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn btn-payment" onclick="openPaymentModal(${patient.id})" title="تسجيل دفعة">
+                                <i class="fas fa-money-bill"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return amount ? amount.toLocaleString('ar-EG') + ' ج.م' : '0 ج.م';
+        }
+
+        // Initialize payment calculation
+        function initializePaymentCalculation() {
+            const treatmentCost = document.getElementById('treatmentCost');
+            const amountPaid = document.getElementById('amountPaid');
+            const pendingAmount = document.getElementById('pendingAmount');
+
+            function calculatePending() {
+                const cost = parseFloat(treatmentCost.value) || 0;
+                const paid = parseFloat(amountPaid.value) || 0;
+                pendingAmount.value = Math.max(0, cost - paid);
+            }
+
+            treatmentCost.addEventListener('input', calculatePending);
+            amountPaid.addEventListener('input', calculatePending);
+        }
+
+        // Search patients
+        function searchPatients() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#patientsTableBody tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[1]?.textContent.toLowerCase() || '';
+                const phone = row.cells[2]?.textContent || '';
+                
+                if (name.includes(searchTerm) || phone.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Filter patients
+        function filterPatients() {
+            const branch = document.getElementById('branchFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('#patientsTableBody tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length < 4) return;
+                
+                const rowBranch = row.cells[3]?.textContent || '';
+                const rowStatus = row.cells[8]?.textContent.includes('نشط') ? 'active' : 'inactive';
+                
+                const branchMatch = branch === 'all' || rowBranch === branch;
+                const statusMatch = status === 'all' || rowStatus === status;
+                
+                row.style.display = branchMatch && statusMatch ? '' : 'none';
+            });
+        }
+
+        // Open modal for new patient
+        function openAddPatientModal() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = 'إضافة مريض جديد';
+            document.getElementById('patientForm').reset();
+            
+            // Set default values
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentDate').value = today;
+            document.getElementById('patientDoctor').value = 'د. إبراهيم';
+            
+            document.getElementById('patientModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('patientModal').classList.remove('active');
+            document.getElementById('patientForm').reset();
+        }
+
+        // Close view modal
+        function closeViewModal() {
+            document.getElementById('viewPatientModal').classList.remove('active');
+        }
+
+        // Close payment modal
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            document.getElementById('paymentForm').reset();
+        }
+
+        // Edit patient
+        function editPatient(id) {
+            const patient = EbtesamtySystem.patients.find(p => p.id === id);
+            if (!patient) return;
+            
+            currentEditId = id;
+            document.getElementById('modalTitle').textContent = 'تعديل بيانات المريض';
+            document.getElementById('patientId').value = patient.id || '';
+            document.getElementById('patientName').value = patient.name || '';
+            document.getElementById('patientPhone').value = patient.phone || '';
+            document.getElementById('patientBirthDate').value = patient.birthDate || '';
+            document.getElementById('patientBranch').value = patient.branch || '';
+            document.getElementById('patientDoctor').value = patient.doctor || 'د. إبراهيم';
+            document.getElementById('patientTreatment').value = patient.treatment || '';
+            document.getElementById('treatmentCost').value = patient.treatmentCost || 0;
+            document.getElementById('amountPaid').value = patient.totalPayments || 0;
+            
+            // Calculate pending
+            const cost = parseFloat(patient.treatmentCost) || 0;
+            const paid = parseFloat(patient.totalPayments) || 0;
+            document.getElementById('pendingAmount').value = Math.max(0, cost - paid);
+            
+            document.getElementById('patientModal').classList.add('active');
+        }
+
+        // View patient details
+        function viewPatient(id) {
+            const patient = EbtesamtySystem.patients.find(p => p.id === id);
+            if (!patient) return;
+            
+            const detailsDiv = document.getElementById('patientDetails');
+            detailsDiv.innerHTML = `
+                <div style="padding: 20px;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <p><strong>الاسم:</strong> ${patient.name || '---'}</p>
+                        <p><strong>رقم الهاتف:</strong> ${patient.phone || '---'}</p>
+                        <p><strong>تاريخ الميلاد:</strong> ${patient.birthDate || '---'}</p>
+                        <p><strong>الفرع:</strong> ${patient.branch || '---'}</p>
+                        <p><strong>الطبيب:</strong> ${patient.doctor || '---'}</p>
+                        <p><strong>نوع العلاج:</strong> ${patient.treatment || '---'}</p>
+                        <p><strong>آخر زيارة:</strong> ${patient.lastVisit || '---'}</p>
+                        <p><strong>تكلفة العلاج:</strong> ${formatCurrency(patient.treatmentCost || 0)}</p>
+                        <p><strong>إجمالي المدفوعات:</strong> ${formatCurrency(patient.totalPayments || 0)}</p>
+                        <p><strong>المتبقي:</strong> <span class="${(patient.pendingPayment || 0) > 0 ? 'text-danger' : 'text-success'}">${formatCurrency(patient.pendingPayment || 0)}</span></p>
+                    </div>
+                    
+                    <h4 style="margin: 20px 0 10px;">سجل المدفوعات</h4>
+                    <div class="payment-history">
+                        ${renderPaymentHistory(patient.payments || [])}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('viewPatientModal').classList.add('active');
+        }
+
+        // Render payment history
+        function renderPaymentHistory(payments) {
+            if (!payments || payments.length === 0) {
+                return '<p style="text-align: center; color: #666;">لا توجد مدفوعات سابقة</p>';
+            }
+            
+            return payments.map(p => `
+                <div class="payment-item">
+                    <div>
+                        <div class="payment-amount">${formatCurrency(p.amount)}</div>
+                        <div class="payment-date">${p.date} - ${p.method || 'نقدي'}</div>
+                    </div>
+                    <i class="fas fa-check-circle" style="color: #27ae60;"></i>
+                </div>
+            `).join('');
+        }
+
+        // Open payment modal
+        function openPaymentModal(patientId) {
+            const patient = EbtesamtySystem.patients.find(p => p.id === patientId);
+            if (!patient) return;
+            
+            document.getElementById('paymentPatientId').value = patientId;
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        // Save payment
+        function savePayment(event) {
+            event.preventDefault();
+            
+            const patientId = parseInt(document.getElementById('paymentPatientId').value);
+            const patient = EbtesamtySystem.patients.find(p => p.id === patientId);
+            
+            if (!patient) return;
+            
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const date = document.getElementById('paymentDateModal').value;
+            const method = document.getElementById('paymentMethod').value;
+            
+            // Create payment record
+            const payment = {
+                id: Date.now(),
+                amount: amount,
+                date: date,
+                method: method,
+                patientId: patientId,
+                patientName: patient.name
+            };
+            
+            // Add to transactions
+            if (!EbtesamtySystem.transactions) {
+                EbtesamtySystem.transactions = [];
+            }
+            
+            EbtesamtySystem.transactions.push({
+                id: Date.now(),
+                patientId: patientId,
+                patientName: patient.name,
+                amount: amount,
+                type: 'كشف',
+                date: date,
+                paymentMethod: method,
+                branch: patient.branch
+            });
+            
+            // Update patient payments
+            if (!patient.payments) {
+                patient.payments = [];
+            }
+            patient.payments.push(payment);
+            
+            patient.totalPayments = (patient.totalPayments || 0) + amount;
+            patient.pendingPayment = Math.max(0, (patient.treatmentCost || 0) - patient.totalPayments);
+            
+            // Save to localStorage
+            EbtesamtySystem.saveToLocalStorage();
+            
+            closePaymentModal();
+            loadPatients();
+            alert('تم تسجيل الدفعة بنجاح');
+        }
+
+        // Save patient
+        function savePatient(event) {
+            event.preventDefault();
+            
+            const treatmentCost = parseFloat(document.getElementById('treatmentCost').value) || 0;
+            const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+            
+            const patientData = {
+                name: document.getElementById('patientName').value,
+                phone: document.getElementById('patientPhone').value,
+                birthDate: document.getElementById('patientBirthDate').value,
+                branch: document.getElementById('patientBranch').value,
+                doctor: document.getElementById('patientDoctor').value,
+                treatment: document.getElementById('patientTreatment').value,
+                treatmentCost: treatmentCost,
+                totalPayments: amountPaid,
+                pendingPayment: treatmentCost - amountPaid,
+                lastVisit: new Date().toISOString().split('T')[0],
+                status: 'active',
+                payments: amountPaid > 0 ? [{
+                    id: Date.now(),
+                    amount: amountPaid,
+                    date: document.getElementById('paymentDate').value,
+                    method: 'نقدي'
+                }] : []
+            };
+
+            if (currentEditId) {
+                // Update existing patient
+                const index = EbtesamtySystem.patients.findIndex(p => p.id === currentEditId);
+                if (index !== -1) {
+                    patientData.id = currentEditId;
+                    patientData.payments = EbtesamtySystem.patients[index].payments || [];
+                    
+                    // Add new payment if amount changed
+                    if (amountPaid > (EbtesamtySystem.patients[index].totalPayments || 0)) {
+                        const newPayment = {
+                            id: Date.now(),
+                            amount: amountPaid - (EbtesamtySystem.patients[index].totalPayments || 0),
+                            date: document.getElementById('paymentDate').value,
+                            method: 'نقدي'
+                        };
+                        patientData.payments.push(newPayment);
+                        
+                        // Add to transactions
+                        EbtesamtySystem.transactions.push({
+                            id: Date.now(),
+                            patientId: currentEditId,
+                            patientName: patientData.name,
+                            amount: newPayment.amount,
+                            type: 'كشف',
+                            date: newPayment.date,
+                            paymentMethod: 'نقدي',
+                            branch: patientData.branch
+                        });
+                    }
+                    
+                    EbtesamtySystem.patients[index] = patientData;
+                }
+            } else {
+                // Add new patient
+                patientData.id = EbtesamtySystem.patients.length + 1;
+                EbtesamtySystem.patients.push(patientData);
+                
+                // Add initial payment to transactions if any
+                if (amountPaid > 0) {
+                    EbtesamtySystem.transactions.push({
+                        id: Date.now(),
+                        patientId: patientData.id,
+                        patientName: patientData.name,
+                        amount: amountPaid,
+                        type: 'كشف',
+                        date: document.getElementById('paymentDate').value,
+                        paymentMethod: 'نقدي',
+                        branch: patientData.branch
+                    });
+                }
+            }
+
+            // Save to localStorage
+            EbtesamtySystem.saveToLocalStorage();
+            
+            closeModal();
+            loadPatients();
+            
+            alert(currentEditId ? 'تم تعديل البيانات بنجاح' : 'تم إضافة المريض بنجاح');
+        }
+    </script>
+</body>
+</html>
+
